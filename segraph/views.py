@@ -84,7 +84,7 @@ def userprofile_view(request):
 
     POST#
     uid: int
-    name: str
+    username: str
     intro: str
     city: str
     contact: str
@@ -93,15 +93,23 @@ def userprofile_view(request):
     -------
     GET#
     userprofile_json: json
-      | example: {"uid":1, "name":"xx", "infor":"xxx"}
+      | example: {"uid":1, "username":"xx", "infor":"xxx"}
     POST#
     r_code: json
       | example: {"code":"success"}
     """
     if request.method=='GET':
-        pass
+        user=User.objects.get(uid=int(request.GET['uid']))
+        return HttpResponse(dumps({'uid':user.uid,'username':user.username,
+                                   'intro':user.intro,'avatar':standard_b64encode(user.avatar.content.read()),
+                                   'city':user.city,'contact':user.contact}))
     elif request.method=='POST':
-        pass
+        user=User.objects.get(uid=int(request.POST['uid']))
+        user.username=request.POST['username']
+        user.intro=request.POST['intro']
+        user.city=request.POST['city']
+        user.contact=request.POST['contact']
+        return HttpResponse(dumps({'code':'success'}))
     else:
         return HttpResponse(dumps({'code':'undefined'}))
 
@@ -127,7 +135,6 @@ def gal_view(request):
     gal_json = dumps({ "gid": gal_item.gid,
                        "galname": gal_item.galname})
     return HttpResponse(gal_json)
-    pass
 
 def pic_view(request):
     """
@@ -173,7 +180,6 @@ def pic_view(request):
                        "contact": pic_item.user.contact,
                        "galname": pic_item.gal.galname})
     return HttpResponse(pic_json)
-    pass
 
 def match_view(request):
     """
