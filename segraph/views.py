@@ -22,27 +22,25 @@ def login_view(request): # passed
     return HttpResponse(dumps({'token':std_sha512(user_list[0].username)}))
 
 
-def register_view(request): # buggy
+def register_view(request): # passed
     username=request.POST['username']
     user_list=User.objects.filter(username=username)
     if len(user_list)>0:
         return HttpResponse(dumps({'error':'username already occupied'}))
-    if User.objects.count()==0:
-        uid=0
-    else:
-        uid=User.objects.all().aggregate(Max('uid'))['uid__max']+1
+    uid=User.next()
     hashed_password=request.POST['password']
     salt=str(random())
     hashed_password=std_sha512(hashed_password+salt)
     intro=request.POST['intro']
-    avatar=request.FILES.items()[0]
+    avatar=request.FILES.values()[0]
     city=request.POST['city']
     contact=request.POST['contact']
-    User(uid=uid,username=username,hashed_password=hashed_password,salt=salt,intro=intro,avatar=avatar,city=city,contact=contact).save()
+    user=User(uid=uid,username=username,hashed_password=hashed_password,salt=salt,intro=intro,avatar=avatar,city=city,contact=contact)
+    user.save()
     return HttpResponse(dumps({'token':std_sha512(username)}))
 
 
-def user_view(request):
+def user_view(request): # passed
     """
     get the user information which included name, infor, Pic.
 
@@ -60,21 +58,20 @@ def user_view(request):
                    galname:"xx", content:iasdfadfas}],{..}}
     """
     if request.method=='GET':
-        user_list=User.objects.filter(uid=request.GET['uid'])
+        user_list=User.objects.filter(uid=int(request.GET['uid']))
         if len(user_list)==0:
             return HttpResponse(dumps({'code':'user not exist'}))
         user=user_list[0]
-        # todo
         json_pic_list=[{'pid':pic.pid,'time':pic.time,
                         'galname':pic.gal.galname,
                         'content':standard_b64encode(pic.content.read())} for pic in Pic.objects.filter(user=user)]
         return HttpResponse(dumps({'uid':user.uid,'username':user.username,'intro':user.intro,
-                                   'avatar':standard_b64encode(user.avatar.content.read()),
+                                   'avatar':standard_b64encode(user.avatar.read()),
                                    'city':user.city,'contact':user.contact,'pic_list':json_pic_list}))
     else:
         return HttpResponse(dumps({'code':'undefined'}))
 
-def userprofile_view(request):
+def userprofile_view(request): #passed
     """
     get/update the personal profile which included name, infro.
 
@@ -102,7 +99,7 @@ def userprofile_view(request):
     if request.method=='GET':
         user=User.objects.get(uid=int(request.GET['uid']))
         return HttpResponse(dumps({'uid':user.uid,'username':user.username,
-                                   'intro':user.intro,'avatar':standard_b64encode(user.avatar.content.read()),
+                                   'intro':user.intro,'avatar':standard_b64encode(user.avatar.read()),
                                    'city':user.city,'contact':user.contact}))
     elif request.method=='POST':
         user=User.objects.get(uid=int(request.POST['uid']))
@@ -114,7 +111,7 @@ def userprofile_view(request):
     else:
         return HttpResponse(dumps({'code':'undefined'}))
 
-def gal_view(request):
+def gal_view(request): #passed
     """
     get the gal name by gid
 
@@ -137,7 +134,7 @@ def gal_view(request):
                        "galname": gal_item.galname})
     return HttpResponse(gal_json)
 
-def pic_new_view(request):
+def pic_new_view(request): #passed
     """
     insert pic
 
@@ -148,15 +145,13 @@ def pic_new_view(request):
     galname: str
     
     """
-    content = request.FILE.items()[0]
+    content = request.FILE.values()[0]
     uid = int(request.POST['uid'])
     galname =  request.POST['galname']
 
     gal_list=Gal.objects.filter(galname=galname)
     if len(gal_list)==0:
-        gid=0
-        if Gal.objects.count()>0:
-            gid=Gal.objects.all().aggregate(Max('gid'))['gid__max']+1
+        gid=Gal.next()
         gal=Gal(gid=gid,galname=galname)
         gal.save()
     else:
@@ -165,11 +160,11 @@ def pic_new_view(request):
     user=User.objects.get(uid=uid)
     time=strftime('%Y%m%d')
 
-    pid=0
-    if Pic.objects.count()>0:
-        pid=Pic.objects.all().aggregate(Max('pid'))['pid__max']+1
+    pid=Pic.next()
 
     Pic(pid=pid,time=time,user=user,gal=gal,content=content).save()
+
+    return HttpResponse(dumps({"code":"success"}))
 
     
 def pic_view(request):
@@ -186,7 +181,7 @@ def pic_view(request):
     #GET
     pic_json: json
       | example: {"pid":"1", "time":"20140404", "content":"xxx","uid":"1",
-                  "username":"xx", "intro":"xxx", avator:"base64xxxxx",
+                  "username":"xx", "intro":"xxx", avatar:"base64xxxxx",
                   "city":"xx", contact:"xx", "galname": "xx"}
       | exception: {"code": "undefined"}
     """
@@ -197,12 +192,12 @@ def pic_view(request):
     pic_item = pic_list[0]
 
     pic_json = dumps({ "pid": pic_item.pid,
-                       "content": pic_item.content,
+                       "content": pic_item.content.read(),
                        "time": pic_item.time,
                        "uid": pic_item.user.uid,
                        "username": pic_item.user.username,
                        "intro": pic_item.user.intro,
-                       "avator": pic_item.user.avator,
+                       "avatar": pic_item.user.avatar.read(),
                        "city": pic_item.user.city,
                        "contact": pic_item.user.contact,
                        "galname": pic_item.gal.galname})
@@ -227,12 +222,12 @@ def match_view(request):
     # 2333 this is a trivial function!!!
     pics = User.objects.all()
     pic_list = [ {"pid": pic.pid,
-                  "content": pic.content,
+                  "content": pic.content.read(),
                   "time": pic.time,
                   "uid": pic.user.uid,
                   "username": pic.user.username,
                   "intro": pic.user.intro,
-                  "avator": pic.user.avator,
+                  "avatar": pic.user.avatar.read(),
                   "city": pic.user.city,
                   "contact": pic.user.contact,
                   "galname": pic.gal.galname} for pic in pics ]
