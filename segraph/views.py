@@ -111,6 +111,14 @@ def gal_view(request):
       | example: {"gid":"1", "galname":"xx"}
       | exception: {"code": "undefined"}
     """
+    gal_list = Gal.objects.filter(gid=request.POST['gid'])
+    # check if empty
+    if len(gal_list) == 0:
+        return HttpResponse(dumps({'code': 'gal not found'}))
+    gal_item = gal_list[0]
+    gal_json = dumps({ "gid": gal_item.gid,
+                       "galname": gal_item.galname})
+    return HttpResponse(gal_json)
     pass
 
 def pic_view(request):
@@ -132,7 +140,7 @@ def pic_view(request):
     pic_json: json
       | example: {"pid":"1", "time":"20140404", "content":"xxx","uid":"1",
                   "username":"xx", "intro":"xxx", avator:"base64xxxxx",
-                  "city":"xx", contact:"xx"}
+                  "city":"xx", contact:"xx", "galname": "xx"}
       | exception: {"code": "undefined"}
 
     #POST:
@@ -140,6 +148,23 @@ def pic_view(request):
       | example: {"code": "success"}
       | exception: {"code": "undefined"}
     """
+    pic_list = Pic.objects.filter(pid=request.POST['pic'])
+    #check if empty
+    if len(pic_list) == 0:
+        return HttpResponse(dumps({'code': 'pic not found'}))
+    pic_item = pic_list[0]
+
+    pic_json = dumps({ "pid": pic_item.pid,
+                       "content": pic_item.content,
+                       "time": pic_item.time,
+                       "uid": pic_item.user.uid,
+                       "username": pic_item.user.username,
+                       "intro": pic_item.user.intro,
+                       "avator": pic_item.user.avator,
+                       "city": pic_item.user.city,
+                       "contact": pic_item.user.contact,
+                       "galname": pic_item.gal.galname})
+    return HttpResponse(pic_json)
     pass
 
 def match_view(request):
