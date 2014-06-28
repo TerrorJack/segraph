@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^userprofile/',userprofile_view),
     url(r'^gal/',gal_view),
     url(r'^pic/',pic_view),
+    url(r'^pic_new/',pic_new_view),
     url(r'^match/',match_view),
 )

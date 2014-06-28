@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.db.models import Max
 from random import random
 from base64 import standard_b64encode
+from time import strftime
 from models import *
 
 def std_sha512(s):
@@ -148,12 +149,28 @@ def pic_new_view(request):
     
     """
     content = request.FILE.items()[0]
-    uid = request.POST['uid']
+    uid = int(request.POST['uid'])
     galname =  request.POST['galname']
 
-    # TODO- get gal entry
+    gal_list=Gal.objects.filter(galname=galname)
+    if len(gal_list)==0:
+        gid=0
+        if Gal.objects.count()>0:
+            gid=Gal.objects.all().aggregate(Max('gid'))['gid__max']+1
+        gal=Gal(gid=gid,galname=galname)
+        gal.save()
+    else:
+        gal=gal_list[0]
     
-    pass
+    user=User.objects.get(uid=uid)
+    time=strftime('%Y%m%d')
+
+    pid=0
+    if Pic.objects.count()>0:
+        pid=Pic.objects.all().aggregate(Max('pid'))['pid__max']+1
+
+    Pic(pid=pid,time=time,user=user,gal=gal,content=content).save()
+
     
 def pic_view(request):
     """
