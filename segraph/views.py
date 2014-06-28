@@ -3,7 +3,11 @@ from hashlib import sha512
 from django.http import HttpResponse
 from django.db.models import Max
 from random import random
+from base64 import standard_b64encode
 from models import *
+
+def std_sha512(s):
+    return sha512(s).hexdigest()
 
 def login_view(request): # passed
     """
@@ -11,10 +15,10 @@ def login_view(request): # passed
     """
     user_list=User.objects.filter(username=request.POST['username'])
     if len(user_list)==0:
-        return HttpResponse(dumps({'error':'user not found'}))
-    if sha512(request.POST['password']+user_list[0].salt).hexdigest()!=user_list[0].hashed_password:
-        return HttpResponse(dumps({'error':'incorrect password'}))
-    return HttpResponse(dumps({'token':sha512(user_list[0].username).hexdigest()}))
+        return HttpResponse(dumps({'code':'user not found'}))
+    if std_sha512(request.POST['password']+user_list[0].salt)!=user_list[0].hashed_password:
+        return HttpResponse(dumps({'code':'incorrect password'}))
+    return HttpResponse(dumps({'token':std_sha512(user_list[0].username)}))
 
 
 def register_view(request): # buggy
@@ -28,13 +32,13 @@ def register_view(request): # buggy
         uid=User.objects.all().aggregate(Max('uid'))['uid__max']+1
     hashed_password=request.POST['password']
     salt=str(random())
-    hashed_password=sha512(hashed_password+salt).hexdigest()
+    hashed_password=std_sha512(hashed_password+salt)
     intro=request.POST['intro']
     avatar=request.FILES.items()[0]
     city=request.POST['city']
     contact=request.POST['contact']
     User(uid=uid,username=username,hashed_password=hashed_password,salt=salt,intro=intro,avatar=avatar,city=city,contact=contact).save()
-    return HttpResponse(dumps({'token':sha512(username).hexdigest()}))
+    return HttpResponse(dumps({'token':std_sha512(username)}))
 
 
 def user_view(request):
@@ -43,6 +47,7 @@ def user_view(request):
 
     Params:
     -----------
+    GET #
     uid: int
 
     Return:
@@ -50,12 +55,25 @@ def user_view(request):
     user_json: json
       | example: { uid:1, username:"xxx", intro:"xxx", avatar:=i213adskfa,
                    city:"xxx", contact:"xxx",
-                   pic_list:[{pid:122, time:20140503, user:"xx",
+                   pic_list:[{pid:122, time:20140503,
                    galname:"xx", content:iasdfadfas}],{..}}
     """
-    pass
+    if request.method=='GET':
+        user_list=User.objects.filter(uid=request.GET['uid'])
+        if len(user_list)==0:
+            return HttpResponse(dumps({'code':'user not exist'}))
+        user=user_list[0]
+        # todo
+        json_pic_list=[{'pid':pic.pid,'time':pic.time,
+                        'galname':pic.gal.galname,
+                        'content':standard_b64encode(pic.content.read())} for pic in Pic.objects.filter(user=user)]
+        return HttpResponse(dumps({'uid':user.uid,'username':user.username,'intro':user.intro,
+                                   'avatar':standard_b64encode(user.avatar.content.read()),
+                                   'city':user.city,'contact':user.contact,'pic_list':json_pic_list}))
+    else:
+        return HttpResponse(dumps({'code':'undefined'}))
 
-def userproflie_view(request):
+def userprofile_view(request):
     """
     get/update the personal profile which included name, infro.
 

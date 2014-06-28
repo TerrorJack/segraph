@@ -1,4 +1,5 @@
 from django.db import models
+
 class User(models.Model):
     uid=models.IntegerField(primary_key=True)
     username=models.TextField()
@@ -18,3 +19,4 @@ class Pic(models.Model):
     time=models.IntegerField()
     user=models.ForeignKey('User')
     gal=models.ForeignKey('Gal')
+    content=models.FileField(upload_to='img')
