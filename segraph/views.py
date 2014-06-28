@@ -211,4 +211,3 @@ def match_view(request):
                   "galname": pic.gal.galname} for pic in pics ]
     pic_json = dumps(pic_list)
     return HttpResponse(pic_json)
-    pass
