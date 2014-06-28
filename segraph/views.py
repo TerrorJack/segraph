@@ -83,8 +83,11 @@ def userprofile_view(request):
     uid: int
 
     POST#
+    uid: int
     name: str
-    infor: str
+    intro: str
+    city: str
+    contact: str
 
     Returns
     -------
@@ -95,7 +98,12 @@ def userprofile_view(request):
     r_code: json
       | example: {"code":"success"}
     """
-    pass
+    if request.method=='GET':
+        pass
+    elif request.method=='POST':
+        pass
+    else:
+        return HttpResponse(dumps({'code':'undefined'}))
 
 def gal_view(request):
     """
