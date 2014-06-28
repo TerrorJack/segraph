@@ -80,7 +80,7 @@ def gal_view(request):
     gal_list = Gal.objects.filter(gid=request.POST['gid'])
     # check if empty
     if len(gal_list) == 0:
-        reutrn HttpResponse(dumps({'code': 'gal not found'}))
+        return HttpResponse(dumps({'code': 'gal not found'}))
     gal_item = gal_list[0]
     gal_json = dumps({ "gid": gal_item.gid,
                        "galname": gal_item.galname})
