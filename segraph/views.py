@@ -109,4 +109,19 @@ def pic_view(request):
     pass
 
 def match_view(request):
+    """
+    get the suitable coser with the KNN Algorithm ( really?23333
+
+    Params:
+    -------
+    uid: int
+
+    Returns:
+    user_list: json
+      | example: [{ uid:1, username:"xxx", intro:"xxx", avatar:="base64",
+                   city:"xxx", contact:"xxx",
+                   pic_suited:{pid:122, time:20140503, user:"xx",
+                   galname:"xx", content:iasdfadfas} },..,{..}]
+      | exception: {"code": "undefined"}
+    """
     pass
