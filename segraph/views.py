@@ -136,6 +136,25 @@ def gal_view(request):
                        "galname": gal_item.galname})
     return HttpResponse(gal_json)
 
+def pic_new_view(request):
+    """
+    insert pic
+
+    Params:
+    -------
+    content: FILE
+    uid: int
+    galname: str
+    
+    """
+    content = request.FILE.items()[0]
+    uid = request.POST['uid']
+    galname =  request.POST['galname']
+
+    # TODO- get gal entry
+    
+    pass
+    
 def pic_view(request):
     """
     get a single picture by pid
@@ -145,10 +164,6 @@ def pic_view(request):
     #GET
     pid: int
 
-    #POST
-    uid: int
-    content: base64
-    
     Returns:
     --------
     #GET
@@ -156,11 +171,6 @@ def pic_view(request):
       | example: {"pid":"1", "time":"20140404", "content":"xxx","uid":"1",
                   "username":"xx", "intro":"xxx", avator:"base64xxxxx",
                   "city":"xx", contact:"xx", "galname": "xx"}
-      | exception: {"code": "undefined"}
-
-    #POST:
-    r_code: json
-      | example: {"code": "success"}
       | exception: {"code": "undefined"}
     """
     pic_list = Pic.objects.filter(pid=request.POST['pic'])
