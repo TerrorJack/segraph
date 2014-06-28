@@ -22,9 +22,51 @@ def register_view(request):
 
 
 def user_view(request):
+    """
+    get the user information which included name, infor, Pic.
+
+    Parameters:
+    -----------
+    uid: int
+
+    Return:
+    -------
+    user_json: json
+      | example: { uid:1, username:"xxx", intro:"xxx", avatar:=i213adskfa,
+                   city:"xxx", contact:"xxx",
+                   pic_list:[{pid:122, time:20140503, user:"xx",
+                   galname:"xx", content:iasdfadfas}],{..}}
+    """
+    pass
+
+def userproflie_view(request):
+    """
+    get/update the personal profile which included name, infro.
+
+    Parameters:
+    -----------
+    GET#
+    uid: int
+
+    POST#
+    name: str
+    infor: str
+
+    Returns
+    -------
+    GET#
+    userprofile_json: json
+      | example: {"uid":1, "name":"xx", "infor":"xxx"}
+    POST#
+    r_code: json
+      | example: {"code":"success"}
+    """
     pass
 
 def gal_view(request):
+    """
+
+    """
     pass
 
 def pic_view(request):

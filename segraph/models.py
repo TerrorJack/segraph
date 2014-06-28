@@ -1,5 +1,4 @@
 from django.db import models
-
 class User(models.Model):
     uid=models.IntegerField(primary_key=True)
     username=models.TextField()
