@@ -197,4 +197,18 @@ def match_view(request):
                    galname:"xx", content:iasdfadfas} },..,{..}]
       | exception: {"code": "undefined"}
     """
+    # 2333 this is a trivial function!!!
+    pics = User.objects.all()
+    pic_list = [ {"pid": pic.pid,
+                  "content": pic.content,
+                  "time": pic.time,
+                  "uid": pic.user.uid,
+                  "username": pic.user.username,
+                  "intro": pic.user.intro,
+                  "avator": pic.user.avator,
+                  "city": pic.user.city,
+                  "contact": pic.user.contact,
+                  "galname": pic.gal.galname} for pic in pics ]
+    pic_json = dumps(pic_list)
+    return HttpResponse(pic_json)
     pass
