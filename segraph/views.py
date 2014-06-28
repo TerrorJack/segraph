@@ -25,7 +25,7 @@ def user_view(request):
     """
     get the user information which included name, infor, Pic.
 
-    Parameters:
+    Params:
     -----------
     uid: int
 
@@ -43,7 +43,7 @@ def userproflie_view(request):
     """
     get/update the personal profile which included name, infro.
 
-    Parameters:
+    Params:
     -----------
     GET#
     uid: int
@@ -65,11 +65,47 @@ def userproflie_view(request):
 
 def gal_view(request):
     """
+    get the gal name by gid
 
+    Params:
+    -------
+    gid: int
+
+    Returns:
+    --------
+    gal_json: json
+      | example: {"gid":"1", "galname":"xx"}
+      | exception: {"code": "undefined"}
     """
     pass
 
 def pic_view(request):
+    """
+    get a single picture by pid
+
+    Params:
+    -------
+    #GET
+    pid: int
+
+    #POST
+    uid: int
+    content: base64
+    
+    Returns:
+    --------
+    #GET
+    pic_json: json
+      | example: {"pid":"1", "time":"20140404", "content":"xxx","uid":"1",
+                  "username":"xx", "intro":"xxx", avator:"base64xxxxx",
+                  "city":"xx", contact:"xx"}
+      | exception: {"code": "undefined"}
+
+    #POST:
+    r_code: json
+      | example: {"code": "success"}
+      | exception: {"code": "undefined"}
+    """
     pass
 
 def match_view(request):
